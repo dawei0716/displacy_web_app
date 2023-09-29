@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DisplaCy Example</title>
+    <style>
+        /* Add some basic styling to the body */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        /* Style the form */
+        form {
+            margin-bottom: 20px;
+        }
+
+        /* Style the label */
+        label {
+            font-size: 18px;
+        }
+
+        /* Style the input field to make it larger */
+        input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            font-size: 18px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        /* Style the submit button */
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Style the output div */
+        #output {
+            margin-top: 20px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse; 
+            margin-top: 20px;
+            border: 1px solid #ddd;
+        }
+
+        table th, table td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        table th {
+            background-color: #f2f2f2; 
+        }
+
+        table tr:hover {
+            background-color: #f5f5f5; 
+        }
+
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('#sentence-form').on('submit', function(event){
+                event.preventDefault();
+                $.ajax({
+                    url: '/parse',
+                    method: 'post',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        sentence: $('#sentence').val()
+                    }),
+                    success: function(response){
+                        $('#output').html(response.html);
+                        // Create a table for the token data
+                        let tokenTable = '<table border="1" style="width:100%; margin-top: 20px;">';
+                        tokenTable += '<tr><th>Text</th><th>Dependency</th><th>Part of Speech</th><th>Tag</th></tr>';
+                        response.token_data.forEach(token => {
+                            tokenTable += `<tr>
+                                <td>${token.text}</td>
+                                <td>${token.dep}</td>
+                                <td>${token.pos}</td>
+                                <td>${token.tag}</td>
+                            </tr>`;
+                        });
+                        tokenTable += '</table>';
+                        // Append the table to the output div
+                        $('#output').append(tokenTable);
+                    }
+
+
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <!-- Create a form to input a sentence -->
+    <form id="sentence-form">
+        <!-- Input field for the sentence -->
+        <label for="sentence">Enter a sentence:</label><br>
+        <input type="text" id="sentence" name="sentence" required><br>
+        <!-- Submit button for the form -->
+        <button type="submit">Submit</button>
+    </form>
+    <!-- Output area for the displaCy visualization -->
+    <div id="output"></div>
+</body>
+</html>
